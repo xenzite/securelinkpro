@@ -1,0 +1,453 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Monetag Verification Meta Tag -->
+    <meta name="monetag" content="b424f270ce8161adbe465a8c058abd0c">
+    
+    <title>Premium Link Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Monetag SDK -->
+    <script src='//libtl.com/sdk.js' data-zone='10421542' data-sdk='show_10421542'></script>
+    <script>(function(s){s.dataset.zone='10421454',s.src='https://gizokraijaw.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <script>(function(s){s.dataset.zone='10421440',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+        
+        :root { 
+            --primary: #3b82f6; 
+            --accent: #10b981; 
+            --bg-dark: #020617; 
+            --card-bg: rgba(15, 23, 42, 0.8);
+            --text-main: #ffffff;
+            --text-dim: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Anti-Adblock Style */
+        #adblock-wrapper {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: rgba(2, 6, 23, 0.98);
+            backdrop-filter: blur(12px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Improved Light Mode Colors */
+        body.light-mode {
+            --bg-dark: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-main: #0f172a;
+            --text-dim: #64748b;
+            --border: rgba(0, 0, 0, 0.05);
+            background-image: radial-gradient(circle at 50% -20%, #dbeafe, transparent),
+                              radial-gradient(circle at 0% 100%, #f1f5f9, transparent);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% -20%, #1e293b, transparent),
+                              radial-gradient(circle at 0% 100%, #0f172a, transparent);
+            color: var(--text-main); 
+            font-family: 'Outfit', sans-serif; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        .glass-card {
+            background: var(--card-bg); 
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border); 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            transition: background 0.4s ease, border 0.4s ease;
+        }
+
+        .step-box { display: none; }
+        .active-step { display: block; animation: slideUp 0.4s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        #topNotif {
+            position: fixed; top: 0; left: 0; width: 100%; min-height: 40px;
+            background: linear-gradient(90deg, #1e40af, #065f46);
+            color: white; font-size: 12px; font-weight: 600; padding: 8px 15px;
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            transform: translateY(-100%); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 9999; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        #topNotif.show { transform: translateY(0); }
+
+        .btn-click-anim { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-click-anim:active { transform: scale(0.92); }
+
+        /* Theme Toggle Animation */
+        #themeToggle {
+            cursor: pointer; width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; background: rgba(128, 128, 128, 0.1);
+            transition: all 0.3s ease;
+        }
+        .theme-icon-anim { animation: rotateIn 0.5s ease; }
+        @keyframes rotateIn { 0% { transform: rotate(-90deg) scale(0); } 100% { transform: rotate(0deg) scale(1); } }
+
+        .file-name-container {
+            background: linear-gradient(145deg, rgba(59, 130, 246, 0.15), rgba(30, 41, 59, 0.5));
+            border: 1px solid rgba(59, 130, 246, 0.4); overflow: hidden; position: relative;
+        }
+        .indicator-dot { width: 10px; height: 10px; border-radius: 50%; background: #334155; transition: 0.3s; }
+        .indicator-dot.active { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+        
+        /* Light Mode Specific Adjustments */
+        .light-mode .version-badge { background: #e2e8f0; color: #475569; border-color: #cbd5e1; }
+        .light-mode .input-field { background: #ffffff; border-color: #cbd5e1; color: #0f172a; }
+        .light-mode .check-container { background: #f1f5f9; border-color: #e2e8f0; }
+        .light-mode .text-slate-400 { color: #64748b; }
+        .light-mode .text-slate-300 { color: #334155; }
+        .light-mode .file-name-container { background: #eff6ff; border-color: #bfdbfe; }
+    </style>
+</head>
+<body class="items-center p-4">
+
+    <!-- Anti-Adblock Overlay -->
+    <div id="adblock-wrapper">
+        <div class="max-w-sm w-full glass-card p-10 rounded-[2.5rem] text-center border-red-500/30">
+            <div class="w-20 h-20 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
+                <i class="fas fa-hand-paper"></i>
+            </div>
+            <h2 class="text-2xl font-black mb-4">Ad Blocker Detected</h2>
+            <p class="text-slate-400 text-sm mb-8 leading-relaxed">
+                Your device has an ad blocker turned on. Please disable it first, then refresh the page to enter the website.
+            </p>
+            <button onclick="window.location.reload()" class="w-full bg-blue-600 py-4 rounded-2xl font-bold btn-click-anim text-white shadow-lg shadow-blue-500/20">
+                I've Disabled It, Refresh Now
+            </button>
+        </div>
+    </div>
+
+    <!-- Top Notification Bar -->
+    <div id="topNotif">Processing...</div>
+
+    <!-- Top Navigation -->
+    <div class="w-full max-w-md flex justify-between items-center py-6 mb-2">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <i class="fas fa-link text-white text-sm"></i>
+            </div>
+            <span class="font-bold text-lg tracking-tight">SecureLink<span class="text-blue-500">PRO</span></span>
+        </div>
+        <div class="flex items-center gap-3">
+            <button id="themeToggle" onclick="toggleTheme()" class="btn-click-anim">
+                <i id="themeIcon" class="fas fa-moon text-yellow-400"></i>
+            </button>
+            <div class="version-badge text-xs bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700 text-slate-400 transition-colors">v2.4.0 <span class="text-green-500 ml-1">●</span></div>
+        </div>
+    </div>
+
+    <!-- Adsterra Top Banner (DO NOT EDIT) -->
+    <div class="ad-banner-area w-full max-w-md mb-6" style="min-height: 50px; text-align: center;">
+        <script>
+            atOptions = { 'key' : '94c6cbd8f44d43e6b70a0614895dae0b', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+        </script>
+        <script src="https://www.highperformanceformat.com/94c6cbd8f44d43e6b70a0614895dae0b/invoke.js"></script>
+    </div>
+
+    <!-- Main Card -->
+    <div class="w-full max-w-md glass-card rounded-[2.5rem] p-8 relative">
+        
+        <!-- Stylish Link Name Section -->
+        <div id="fileInfoArea" class="hidden text-center mb-8 px-4 py-5 file-name-container rounded-3xl">
+            <span class="text-[9px] uppercase tracking-[0.4em] text-blue-500 font-black mb-2 block">Link Authorized</span>
+            <h1 id="innerFileName" class="text-xl font-black truncate px-2 relative z-10">Loading...</h1>
+            <div class="mt-2 h-1 w-16 bg-blue-500/30 mx-auto rounded-full overflow-hidden">
+                <div class="h-full bg-blue-500 animate-[loading_2s_infinite]"></div>
+            </div>
+        </div>
+
+        <!-- Roadmap -->
+        <div id="roadmap" class="hidden flex justify-between items-center mb-10 px-4">
+            <div class="flex flex-col items-center gap-2"><div id="dot1" class="indicator-dot active"></div><span class="text-[10px] uppercase text-blue-500 font-bold">Step 1</span></div>
+            <div class="h-[1px] flex-1 bg-slate-700 mx-2"></div>
+            <div class="flex flex-col items-center gap-2"><div id="dot2" class="indicator-dot"></div><span class="text-[10px] uppercase text-slate-500 font-bold">Step 2</span></div>
+            <div class="h-[1px] flex-1 bg-slate-700 mx-2"></div>
+            <div class="flex flex-col items-center gap-2"><div id="dot3" class="indicator-dot"></div><span class="text-[10px] uppercase text-slate-500 font-bold">Step 3</span></div>
+        </div>
+
+        <!-- Login Section -->
+        <div id="keySection" class="active-step">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-extrabold mb-2">Access Portal</h2>
+                <p class="text-slate-400 text-sm">Kindly enter your secret code in the box below to access the link.</p>
+            </div>
+            <div class="relative group mb-6">
+                <input type="number" id="userKey" placeholder="000000" class="input-field w-full bg-slate-900/50 border-2 border-slate-800 rounded-2xl py-5 text-center text-4xl font-black tracking-[0.3em] outline-none focus:border-blue-500 transition-all">
+            </div>
+            <div class="check-container flex items-center gap-3 mb-8 bg-slate-900/50 p-4 rounded-2xl border border-slate-800 transition-colors">
+                <input type="checkbox" id="humanCheck">
+                <label for="humanCheck" class="text-sm text-slate-300 font-medium cursor-pointer">I am not a robot</label>
+            </div>
+            <button onclick="verifyKey()" class="w-full glow-button bg-blue-600 py-5 rounded-2xl font-bold text-lg btn-click-anim text-white shadow-lg shadow-blue-500/20"> CONTINUE </button>
+            
+            <div id="tutorialWrapper" class="hidden mt-4">
+                <button id="tutorialBtn" onclick="openTutorial()" class="w-full bg-slate-800/50 border border-slate-700 text-slate-300 py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 btn-click-anim">
+                    <i class="fab fa-youtube text-red-500"></i>
+                    <span id="tutorialText">Watch Tutorial</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step Boxes -->
+        <div id="step1" class="step-box text-center">
+            <h2 class="text-xl font-bold mb-6">Verification Phase</h2>
+            <button onclick="callMonetagAd(1)" id="adBtn1" class="w-full bg-orange-600 py-6 rounded-2xl font-bold mb-4 shadow-lg btn-click-anim text-white">Watch Video Ad (<span id="count1">0/2</span>)</button>
+        </div>
+
+        <div id="step2" class="step-box text-center">
+            <h2 class="text-xl font-bold mb-6">Security Sync</h2>
+            <button onclick="callMonetagAd(2)" id="adBtn2" class="w-full bg-indigo-600 py-6 rounded-2xl font-bold mb-4 shadow-lg btn-click-anim text-white">Verification Ad (<span id="count2">0/2</span>)</button>
+        </div>
+
+        <div id="step3" class="step-box text-center">
+            <h2 class="text-xl font-bold mb-6">Final Step</h2>
+            <button onclick="callMonetagAd(3)" id="adBtn3" class="w-full bg-pink-600 py-5 rounded-2xl font-bold mb-4 btn-click-anim text-white">Unlock Link (<span id="count3">0/2</span>)</button>
+            
+            <div id="finalActions" class="hidden space-y-4">
+                <button onclick="triggerDownload()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-500 py-6 rounded-2xl font-black text-xl shadow-2xl btn-click-anim text-white">OPEN LINK NOW</button>
+                <button onclick="copyToClipboard()" class="w-full bg-slate-800 py-4 rounded-xl font-bold text-sm text-slate-400 border border-slate-700 btn-click-anim">
+                    <i class="fas fa-copy mr-2"></i> Copy Link
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Adsterra Bottom Banner (DO NOT EDIT) -->
+    <div class="ad-banner-area w-full max-w-md mt-6" style="min-height: 50px; text-align: center;">
+        <script>atOptions = {'key' : '94c6cbd8f44d43e6b70a0614895dae0b','format' : 'iframe','height' : 50,'width' : 320,'params' : {}};</script>
+        <script src="https://www.highperformanceformat.com/94c6cbd8f44d43e6b70a0614895dae0b/invoke.js"></script>
+    </div>
+
+    <footer class="mt-auto py-8 text-center">
+        <p class="text-slate-500 text-sm">Developed by <a href="#" class="text-blue-500 font-bold underline">Xenzite</a></p>
+    </footer>
+
+    <!-- Social Bar (DO NOT EDIT) -->
+    <script type='text/javascript' src='//pl25447101.ritzyformed.com/e5/65/56/e56556e7299380907cae1281895a0a93.js'></script>
+
+    <script>
+        // --- Anti-Adblock Detection ---
+        async function detectAdBlock() {
+            let adBlockEnabled = false;
+            const googleAdUrl = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+            try {
+                await fetch(new Request(googleAdUrl)).catch(_ => adBlockEnabled = true);
+            } catch (e) {
+                adBlockEnabled = true;
+            }
+            
+            // Secondary check using a bait element
+            if(!adBlockEnabled) {
+                const bait = document.createElement('div');
+                bait.innerHTML = '&nbsp;';
+                bait.className = 'adsbox';
+                bait.style = 'position:absolute;top:-1000px;left:-1000px;width:1px;height:1px;';
+                document.body.appendChild(bait);
+                if (bait.offsetHeight === 0) adBlockEnabled = true;
+                document.body.removeChild(bait);
+            }
+
+            if (adBlockEnabled) {
+                document.getElementById('adblock-wrapper').style.display = 'flex';
+                document.body.style.overflow = 'hidden'; // Stop scrolling
+            }
+        }
+        // Run detection on load
+        window.addEventListener('load', detectAdBlock);
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyD_tFKchJD2HYOTU2UlOgUKy3Bn7WVAG4w",
+            authDomain: "ppd-by-xenzite.firebaseapp.com",
+            databaseURL: "https://ppd-by-xenzite-default-rtdb.firebaseio.com",
+            projectId: "ppd-by-xenzite",
+            storageBucket: "ppd-by-xenzite.firebasestorage.app",
+            messagingSenderId: "985409138886",
+            appId: "1:985409138886:web:c0c7c6349194dc4113a7c7",
+            measurementId: "G-S3JMT0M4D4"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let targetFileLink = "";
+        let tutorialLink = "";
+        let adsCountPerStep = 0;
+
+        // --- Tutorial Logic ---
+        function initTutorial() {
+            db.ref('settings/tutorial').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.name && data.url) {
+                    document.getElementById('tutorialWrapper').classList.remove('hidden');
+                    document.getElementById('tutorialText').innerText = data.name;
+                    tutorialLink = data.url;
+                }
+            });
+        }
+        function openTutorial() { if(tutorialLink) window.open(tutorialLink, '_blank'); }
+        initTutorial();
+
+        // --- Theme Logic ---
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('themeIcon');
+            body.classList.toggle('light-mode');
+            
+            icon.classList.remove('theme-icon-anim');
+            void icon.offsetWidth; 
+            icon.classList.add('theme-icon-anim');
+
+            if (body.classList.contains('light-mode')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+                icon.classList.replace('text-yellow-400', 'text-orange-500');
+                localStorage.setItem('theme', 'light');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+                icon.classList.replace('text-orange-500', 'text-yellow-400');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+            document.getElementById('themeIcon').classList.replace('fa-moon', 'fa-sun');
+            document.getElementById('themeIcon').classList.replace('text-yellow-400', 'text-orange-500');
+        }
+
+        function showTopNotif(msg) {
+            const notif = document.getElementById('topNotif');
+            notif.innerHTML = msg;
+            notif.classList.add('show');
+            setTimeout(() => notif.classList.remove('show'), 4000);
+        }
+
+        function switchStep(stepId) {
+            document.querySelectorAll('.step-box, #keySection').forEach(el => {
+                el.classList.remove('active-step'); el.style.display = 'none';
+            });
+            const current = document.getElementById(stepId);
+            current.style.display = 'block';
+            setTimeout(() => current.classList.add('active-step'), 10);
+            document.getElementById('roadmap').classList.remove('hidden');
+            document.getElementById('fileInfoArea').classList.remove('hidden');
+            updateRoadmap(parseInt(stepId.replace('step', '')) || 0);
+            adsCountPerStep = 0;
+        }
+
+        function updateRoadmap(step) {
+            document.querySelectorAll('.indicator-dot').forEach((dot, idx) => {
+                const label = dot.nextElementSibling;
+                if(idx + 1 <= step) {
+                    dot.classList.add('active'); label.classList.add('text-blue-500'); label.classList.remove('text-slate-500');
+                } else {
+                    dot.classList.remove('active'); label.classList.add('text-slate-500'); label.classList.remove('text-blue-500');
+                }
+            });
+        }
+
+        function verifyKey() {
+            const key = document.getElementById('userKey').value;
+            const isHuman = document.getElementById('humanCheck').checked;
+            if(!isHuman || !key) {
+                Swal.fire({ icon: 'warning', text: 'Please complete all fields.', background: '#0f172a', color: '#fff' });
+                return;
+            }
+            // CHANGED Path from 'files' to 'links'
+            db.ref('links/' + key).once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    targetFileLink = data.link;
+                    document.getElementById('innerFileName').innerText = data.name || "Link Identified";
+                    switchStep('step1');
+                } else {
+                    Swal.fire({ icon: 'error', text: 'Invalid Key!', background: '#0f172a', color: '#fff' });
+                }
+            });
+        }
+
+        function callMonetagAd(step) {
+            if (typeof show_10421542 === 'function') {
+                show_10421542().then(() => handleAdLogic(step)).catch(() => handleAdLogic(step));
+            } else { handleAdLogic(step); }
+        }
+
+        function handleAdLogic(step) {
+            adsCountPerStep++;
+            const countEl = document.getElementById('count' + step);
+            if(countEl) countEl.innerText = adsCountPerStep + "/2";
+
+            let msg = "";
+            if (step === 1) {
+                if (adsCountPerStep === 1) msg = "✅ Ad completed successfully.<br>Please watch one more ad to continue.";
+                else msg = "🎉 Step 1 completed!<br>Redirecting you to the next step.";
+            } else if (step === 2) {
+                if (adsCountPerStep === 1) msg = "✅ Ad completed.<br>Watch one more ad to proceed further.";
+                else msg = "🎉 Step 2 completed successfully!<br>You are now moving to the final step.";
+            } else if (step === 3) {
+                if (adsCountPerStep === 1) msg = "✅ Almost done!<br>Watch the final ad to generate your link.";
+                else msg = "🎉 Success!<br>Your link has been generated successfully.";
+            }
+            
+            showTopNotif(msg);
+
+            if(adsCountPerStep >= 2) {
+                if(step === 1) setTimeout(() => switchStep('step2'), 1500);
+                if(step === 2) setTimeout(() => switchStep('step3'), 1500);
+                if(step === 3) {
+                    document.getElementById('adBtn3').classList.add('hidden');
+                    document.getElementById('finalActions').classList.remove('hidden');
+                }
+            }
+        }
+
+        function triggerDownload() {
+            Swal.fire({
+                title: 'Open in Browser?',
+                text: "External link will open in a new tab.",
+                icon: 'info', showCancelButton: true, confirmButtonText: 'OK', background: '#0f172a', color: '#fff'
+            }).then((result) => { if (result.isConfirmed) window.open(targetFileLink, '_blank'); });
+        }
+
+        function copyToClipboard() {
+            const el = document.createElement('textarea');
+            el.value = targetFileLink;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            
+            Swal.fire({
+                toast: true,
+                position: 'top',
+                icon: 'success',
+                title: 'Link Copied Successfully!',
+                showConfirmButton: false,
+                timer: 2000,
+                background: '#10b981',
+                color: '#fff'
+            });
+        }
+    </script>
+</body>
+</html>
