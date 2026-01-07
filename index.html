@@ -121,23 +121,35 @@
     </style>
 </head>
 <body class="items-center p-4">
-
-    <!-- Anti-Adblock Overlay -->
-    <div id="adblock-wrapper">
-        <div class="max-w-sm w-full glass-card p-10 rounded-[2.5rem] text-center border-red-500/30">
-            <div class="w-20 h-20 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
-                <i class="fas fa-hand-paper"></i>
-            </div>
-            <h2 class="text-2xl font-black mb-4">Ad Blocker Detected</h2>
-            <p class="text-slate-400 text-sm mb-8 leading-relaxed">
-                Your device has an ad blocker turned on. Please disable it first, then refresh the page to enter the website.
-            </p>
-            <button onclick="window.location.reload()" class="w-full bg-blue-600 py-4 rounded-2xl font-bold btn-click-anim text-white shadow-lg shadow-blue-500/20">
-             Refresh Page
-            </button>
+<!-- Anti-Adblock Overlay -->
+<div id="adblock-wrapper">
+    <div class="max-w-sm w-full glass-card p-10 rounded-[2.5rem] text-center border-red-500/20">
+        
+        <div class="w-20 h-20 bg-red-500/15 text-red-400 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">
+            <i class="fas fa-exclamation-triangle"></i>
         </div>
-    </div>
 
+        <h2 class="text-2xl font-black mb-3 text-white">
+            Ad Blocker Detected
+        </h2>
+
+        <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+            An ad blocker is currently enabled on your device.
+            Please disable it and refresh the page to continue.
+        </p>
+
+        <button
+            onclick="window.location.reload()"
+            class="w-full bg-blue-600 py-4 rounded-2xl font-semibold btn-click-anim text-white shadow-lg shadow-blue-500/20">
+            Refresh Page
+        </button>
+
+        <p class="text-xs text-slate-500 mt-4">
+            This will reload the page
+        </p>
+
+    </div>
+</div>
     <!-- Top Notification Bar -->
     <div id="topNotif">Processing...</div>
 
