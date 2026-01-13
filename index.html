@@ -154,6 +154,66 @@
             text-decoration: line-through;
             font-style: italic;
         }
+
+
+
+
+        /* ADVANCED TUTORIAL BUTTON CSS */
+        @keyframes advanced-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); transform: scale(1); }
+            50% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); transform: scale(1.02); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); transform: scale(1); }
+        }
+
+        .advanced-tutorial-btn {
+            background: linear-gradient(145deg, #FF0000, #CC0000);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            animation: advanced-pulse 2s infinite;
+        }
+
+        .advanced-tutorial-btn:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(145deg, #FF1A1A, #B30000);
+            box-shadow: 0 10px 20px rgba(204, 0, 0, 0.3);
+        }
+
+        .advanced-tutorial-btn:active {
+            transform: scale(0.95);
+        }
+
+        .advanced-tutorial-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: 0.5s;
+        }
+
+        .advanced-tutorial-btn:hover::after {
+            left: 100%;
+        }
+
+        .indicator-dot { width: 10px; height: 10px; border-radius: 50%; background: #334155; transition: 0.3s; }
+        .indicator-dot.active { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+        
+        .captcha-box {
+            background: rgba(15, 23, 42, 0.9);
+            border: 2px dashed #3b82f6;
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 8px;
+            user-select: none;
+            text-decoration: line-through;
+            font-style: italic;
+        }
+
+        
     </style>
 </head>
 <body class="items-center p-4">
